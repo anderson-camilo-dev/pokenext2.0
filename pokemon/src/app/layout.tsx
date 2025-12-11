@@ -1,6 +1,7 @@
 //import Header from '@/components/Header'; // Ajuste o caminho se sua estrutura for diferente
 //import Footer from '@/components/Footer'; // Ajuste o caminho se sua estrutura for diferente
 import React from 'react'; // Recomendado para tipagem
+import "./globals.css"; // Importa estilos globais
 
 export const metadata = {
   title: 'Meu Pokédex em Next.js', // Título mais relevante para o projeto
@@ -26,7 +27,7 @@ export default function RootLayout({
         
        
         {/* O <main> envolve o conteúdo da página e usa flexGrow para ocupar o espaço restante */}
-        <main style={{ flexGrow: 1 }}>
+        <main >
             {children} {/* Seu src/app/page.tsx vai aqui */}
         </main>
         
