@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Diretórios e arquivos de Build/Cache
+.next/
+node_modules/
