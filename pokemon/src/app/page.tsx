@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PokemonCard, { Pokemon } from '@/app/components/PokemonCard';
 
@@ -9,9 +9,7 @@ interface PokemonListResponse {
   results: { name: string; url: string }[];
 }
 
-
-
-async function fetchPokemonDetails(url: string): Promise<Pokemon> {
+async function fetchPokemonDetails(url: string): Promise<Pokemon & { types: string[] }> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Erro ao buscar detalhes: ${response.status}`);
   const data = await response.json();
@@ -20,139 +18,144 @@ async function fetchPokemonDetails(url: string): Promise<Pokemon> {
     id: data.id,
     name: data.name,
     imageUrl: data.sprites.front_default || '/placeholder-pokemon.png',
+    types: data.types.map((t: any) => t.type.name),
   };
 }
 
 export default function HomePage() {
-  const [allPokemons, setAllPokemons] = useState<Pokemon[]>([]);
+  const [pokemons, setPokemons] = useState<(Pokemon & { types: string[] })[]>([]);
   const [busca, setBusca] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [searchResult, setSearchResult] = useState<Pokemon | null>(null);
+  const [tipoSelecionado, setTipoSelecionado] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [searchResult, setSearchResult] = useState<Pokemon & { types: string[] } | null>(null);
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
-  // 🔹 Carrega apenas 20 pokémons no início
+  // 🔹 Efeito para carregar os 20 primeiros pokémons na inicialização
   useEffect(() => {
-    async function loadPokemons() {
+    async function fetchInitialPokemons() {
+      setIsLoading(true);
       try {
-        const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
-        const data: PokemonListResponse = await res.json();
+        const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
+        const data: PokemonListResponse = await response.json();
 
-        const promises = data.results.map(p => fetchPokemonDetails(p.url));
-        const list = await Promise.all(promises);
-
-        setAllPokemons(list);
+        const list = await Promise.all(
+          data.results.map((p) => fetchPokemonDetails(p.url))
+        );
+        setPokemons(list);
       } catch (err) {
-        console.error("Erro na API:", err);
+        console.error(err);
       } finally {
         setIsLoading(false);
       }
     }
 
-    loadPokemons();
+    fetchInitialPokemons();
   }, []);
 
-  // 🔎 Busca ilimitada na API (fora dos 20 iniciais)
+  // 🔹 Efeito para busca por nome ou filtro por tipo
   useEffect(() => {
     async function searchPokemon() {
-      if (busca.trim() === "") {
-        setSearchResult(null);
-        return;
-      }
-
       setIsSearching(true);
 
-      const term = busca.toLowerCase().trim();
-
       try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${term}`);
-        if (!response.ok) {
-          setSearchResult(null);
+        // 🔹 Caso tenha busca por nome/ID
+        if (busca.trim() !== "") {
+          const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${busca.toLowerCase().trim()}`);
+          if (!response.ok) {
+            setSearchResult(null);
+          } else {
+            const data = await response.json();
+            setSearchResult({
+              id: data.id,
+              name: data.name,
+              imageUrl: data.sprites.front_default || '/placeholder-pokemon.png',
+              types: data.types.map((t: any) => t.type.name),
+            });
+          }
+          setIsSearching(false);
           return;
         }
 
-        const data = await response.json();
+        // 🔹 Caso tenha filtro por tipo
+        if (tipoSelecionado !== "") {
+          setIsLoading(true);
+          const response = await fetch(`https://pokeapi.co/api/v2/type/${tipoSelecionado}`);
+          const data = await response.json();
 
-        setSearchResult({
-          id: data.id,
-          name: data.name,
-          imageUrl: data.sprites.front_default,
-        });
-
-      } catch {
+          const list = await Promise.all(
+            data.pokemon.slice(0, 50).map((p: any) => fetchPokemonDetails(p.pokemon.url))
+          );
+          setPokemons(list);
+          setSearchResult(null);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
         setSearchResult(null);
+        setIsLoading(false);
       } finally {
         setIsSearching(false);
       }
     }
 
-    const timeout = setTimeout(searchPokemon, 400); // debounce
-
+    const timeout = setTimeout(searchPokemon, 400);
     return () => clearTimeout(timeout);
-  }, [busca]);
+  }, [busca, tipoSelecionado]);
 
   return (
     <main className="min-h-screen">
-
-      {/* 🔍 Barra de busca */}
       <div className="mb-4 container mx-auto mt-4 px-4">
         <input
           type="text"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar Pokémon por nome ou ID..."
-          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm
-                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
 
-        
+        <select
+          value={tipoSelecionado}
+          onChange={(e) => setTipoSelecionado(e.target.value)}
+          className="mt-2 w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold bg-gray-700"
+        >
+          <option value="">Todos os tipos</option>
+          <option value="fire">Fogo</option>
+          <option value="water">Água</option>
+          <option value="grass">Grama</option>
+          <option value="electric">Elétrico</option>
+          <option value="poison">Veneno</option>
+          <option value="flying">Voador</option>
+        </select>
       </div>
 
-      {/* LOADING inicial */}
-      {isLoading && (
-        <p className="text-center text-xl mt-10 text-gray-700">
-          Carregando Pokémons...
-        </p>
-      )}
+      {isLoading && <p className="text-center text-xl mt-10 text-gray-700">Carregando Pokémons...</p>}
+      {isSearching && busca && <p className="text-center text-lg text-gray-500">Buscando...</p>}
 
-      {/* LOADING da busca */}
-      {isSearching && busca && (
-        <p className="text-center text-lg text-gray-500">Buscando...</p>
-      )}
-
-      {/* ------------------ */}
-      {/* RESULTADO DA BUSCA */}
-      {/* ------------------ */}
-      {!isLoading && busca !== "" && searchResult && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 
-                        lg:grid-cols-4 gap-4 p-4 container mx-auto">
+      {/* Resultado da busca */}
+      {!isLoading && searchResult && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 container mx-auto">
           <Link href={`/descricao/${searchResult.id}`}>
             <PokemonCard pokemon={searchResult} />
           </Link>
         </div>
       )}
 
-      {/* Caso nada encontrado */}
-      {!isSearching && busca !== "" && !searchResult && (
+      {!isSearching && busca && !searchResult && (
         <p className="text-center text-gray-500 mt-8">
           Nenhum Pokémon encontrado com "{busca}"
         </p>
       )}
 
-      {/* ------------------------ */}
-      {/* LISTA INICIAL DE 20     */}
-      {/* ------------------------ */}
-      {!isLoading && busca === "" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 
-                        lg:grid-cols-4 gap-4 p-4 container mx-auto">
-
-          {allPokemons.map(pokemon => (
+      {/* Lista filtrada por tipo ou inicial */}
+      {!isLoading && !busca && pokemons.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 container mx-auto">
+          {pokemons.map(pokemon => (
             <Link href={`/descricao/${pokemon.id}`} key={pokemon.id}>
               <PokemonCard pokemon={pokemon} />
             </Link>
           ))}
         </div>
       )}
-
     </main>
   );
 }
