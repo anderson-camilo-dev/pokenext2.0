@@ -1,5 +1,3 @@
-
-
 export default function Footer() {
   // Pega o ano atual para o copyright
   const currentYear = new Date().getFullYear(); 

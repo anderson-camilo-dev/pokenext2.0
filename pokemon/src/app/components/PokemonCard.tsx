@@ -27,7 +27,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
     return (
         // O container principal do card, que usa estilos Flexbox para centralizar o conteúdo verticalmente.
         
-        <div className='p-4 rounded-lg shadow-md flex flex-col items-center m-4 border border-gray-200'>
+        <div className='p-4 rounded-lg bg-black/50 shadow-md flex flex-col items-center m-4 border border-gray-200'>
             
             {/* Componente Image otimizado do Next.js: */}
 
@@ -43,8 +43,8 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
             <Link
 
                 href={`/descricao/${pokemon.id}`} // Link para a página de detalhes do Pokémon
-                className='text-white hover:underline mt-2 mb-2'
-            >
+                className='text-white hover:underline mt-2 mb-2' >
+           
                <h3 >{pokemon.name}</h3>
             
             </Link>

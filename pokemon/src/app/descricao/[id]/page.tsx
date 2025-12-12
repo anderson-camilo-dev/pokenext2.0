@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Header from '@/app/components/Header';
+import Link from 'next/link';
 
 // --- Interfaces de Detalhes ---
 interface IdPageProps {
@@ -69,9 +71,9 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
 
 
     return (
-        <div >
-            <div>
-                <h1 >{pokemon.name.toUpperCase()} <span style={{ color: '#888', fontSize: '0.6em' }}>#{pokemon.id}</span></h1>
+        <div className='items-center text-center  flex flex-col min-h-screen' >
+           <div className='border border-gray-200  bg-black/50 p-14 mt-10'>
+                <h1 >{pokemon.name.toUpperCase()} <span>{pokemon.id}</span></h1>
                 
                 <Image 
                     src={pokemon.imageUrl} 

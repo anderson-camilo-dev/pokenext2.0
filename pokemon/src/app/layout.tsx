@@ -2,11 +2,14 @@
 //import Footer from '@/components/Footer'; // Ajuste o caminho se sua estrutura for diferente
 import React from 'react'; // Recomendado para tipagem
 import "./globals.css"; // Importa estilos globais
+import Header from './components/Header';
 
 export const metadata = {
   title: 'Meu Pokédex em Next.js', // Título mais relevante para o projeto
   description: 'Um projeto de estudo consumindo a PokeAPI.',
 }
+
+
 export default function RootLayout({
   children,
 }: {
@@ -27,14 +30,19 @@ export default function RootLayout({
         
        
         {/* O <main> envolve o conteúdo da página e usa flexGrow para ocupar o espaço restante */}
-        <main >
+        <Header />
+        <main className='bg-[url("/fundo.jpg")] bg-no-repeat bg-center bg-fixed bg-cover '>
             {children} {/* Seu src/app/page.tsx vai aqui */}
+
+
         </main>
-        
-        
+
+       
         
         {/* 3. FIM DO LAYOUT */}
+       
       </body>
+      
     </html>
   )
 }
