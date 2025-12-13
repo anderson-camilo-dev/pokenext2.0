@@ -98,3 +98,8 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
 
 };
 
+
+
+
+
+
