@@ -9,41 +9,40 @@ import Link from 'next/link';
 interface IdPageProps {
   params: {
     id: string; // O ID é recebido da URL
-  };
+  };
 }
 
 interface FullPokemonDetails {
-    id: number;
-    name: string;
-    height: number;
-    weight: number;
-    types: { type: { name: string } }[];
-    imageUrl: string;
+   id: number;
+    name: string;
+    height: number;
+    weight: number;
+    types: { type: { name: string } }[];
+    imageUrl: string;
 }
 
 // --- Funções de Busca (Server Component) ---
 async function fetchFullPokemonDetails(pokemonId: string): Promise<FullPokemonDetails | null> {
-    // Usa o ID da URL para buscar na API
-    const API_URL = `https://pokeapi.co/api/v2/pokemon/${pokemonId}`; 
-    
-    try {
-        const response = await fetch(API_URL, {
-            next: { revalidate: 86400 }, 
-        });
+    // Usa o ID da URL para buscar na API
+    const API_URL = `https://pokeapi.co/api/v2/pokemon/${pokemonId}`; 
+ 
+   try {
+        const response = await fetch(API_URL, {
+         next: { revalidate: 86400 }, 
+});
+ if (!response.ok) {
+return null; 
+ }
 
-        if (!response.ok) {
-            return null; 
-        }
+ const data = await response.json();
 
-        const data = await response.json();
-
-        return {
-            id: data.id,
-            name: data.name, 
-            height: data.height,
-            weight: data.weight,
-            types: data.types,
-            imageUrl: data.sprites.front_default || '/placeholder-pokemon.png',
+ return {
+            id: data.id,
+            name: data.name, 
+            height: data.height,
+            weight: data.weight,
+            types: data.types,
+            imageUrl: data.sprites.front_default || '/placeholder-pokemon.png',
         };
     } catch (error) {
         console.error("Erro ao buscar detalhes:", error);
@@ -78,7 +77,7 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
                 <Image 
                     src={pokemon.imageUrl} 
                     alt={`Sprite de ${pokemon.name}`} 
-                    width={200} 
+                  width={200} 
                     height={200} 
                    
                     priority 
@@ -91,5 +90,5 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
                 </div>
             </div>
         </div>
-    );
+);
 };
