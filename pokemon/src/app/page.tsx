@@ -1,6 +1,6 @@
 "use client";
 
-import Footer from "./components/Footer";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import PokemonCard, { Pokemon } from "@/app/components/PokemonCard";
@@ -121,7 +121,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen">
-      <div className="mb-4 container mx-auto mt-4 px-4">
+      <div className="mb-40 container mx-auto mt-10 px-4">
         <input
           type="text"
           value={busca}
@@ -133,9 +133,10 @@ export default function HomePage() {
         <select
           value={tipoSelecionado}
           onChange={(e) => setTipoSelecionado(e.target.value)}
-          className="mt-2 w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold bg-gray-700"
+          className="mt-7  w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-write font-bold bg-black/70"
         >
-          <option value="">Todos os tipos</option>
+          
+          <option  value="">Tipos de pokémons</option>
           <option value="fire">Fogo</option>
           <option value="water">Água</option>
           <option value="grass">Grama</option>
@@ -180,7 +181,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <Footer />
+      
     </main>
   );
 }

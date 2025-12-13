@@ -3,7 +3,7 @@
 import React from 'react'; // Recomendado para tipagem
 import "./globals.css"; // Importa estilos globais
 import Header from './components/Header';
-
+import Footer from './components/Footer';
 export const metadata = {
   title: 'Meu Pokédex em Next.js', // Título mais relevante para o projeto
   description: 'Um projeto de estudo consumindo a PokeAPI.',
@@ -33,10 +33,12 @@ export default function RootLayout({
         <Header />
         <main className='bg-[url("/fundo.jpg")] bg-no-repeat bg-center bg-fixed bg-cover '>
             {children} {/* Seu src/app/page.tsx vai aqui */}
-
+       <div>
+        <Footer/>
+       </div>
 
         </main>
-
+       
        
         
         {/* 3. FIM DO LAYOUT */}

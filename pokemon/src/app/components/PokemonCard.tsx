@@ -39,12 +39,11 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
         // Estilos internos (margem, etc.)
         // Define a prioridade de carregamento para os primeiros Pokémons, melhorando a métrica LCP.
       />
-      <Link
-        href={`/descricao/${pokemon.id}`} // Link para a página de detalhes do Pokémon
-        className="text-white hover:underline mt-2 mb-2"
-      >
+     
+       
+        
         <h3>{pokemon.name}</h3>
-      </Link>
+    
 
       {/* Nome do Pokémon */}
 

@@ -2,10 +2,12 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Header from '@/app/components/Header';
+
+
+
 import Link from 'next/link';
 
-// --- Interfaces de Detalhes ---
+// --- Interfaces de Detalhes ---hE
 interface IdPageProps {
   params: {
     id: string; // O ID é recebido da URL
@@ -70,9 +72,10 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
 
 
     return (
-        <div className='items-center text-center  flex flex-col min-h-screen' >
-           <div className='border border-gray-200  bg-black/50 p-14 mt-10'>
-                <h1 >{pokemon.name.toUpperCase()} <span>{pokemon.id}</span></h1>
+        <div className='items-center pr-20 text-reght  flex flex-col ' >
+           <div className='border border-gray-200 rounded-xl bg-black/80 p-14 mt-10'>
+               <h1 className='text-2xl text-left '>#{pokemon.id}</h1>
+                <h1 className='font-bold tracking-wide text-3xl'>{pokemon.name.toUpperCase()} </h1>
                 
                 <Image 
                     src={pokemon.imageUrl} 
@@ -83,12 +86,15 @@ export default async function PokemonDetailPage({ params }: IdPageProps) {
                     priority 
                 />
                 
-                <div >
+                <div className='font-mono'>
                     <p><strong>Tipo(s):</strong> {tipoString}</p>
                     <p><strong>Altura:</strong> {pokemon.height / 10} m</p> 
                     <p><strong>Peso:</strong> {pokemon.weight / 10} kg</p> 
                 </div>
             </div>
         </div>
+
 );
+
 };
+
