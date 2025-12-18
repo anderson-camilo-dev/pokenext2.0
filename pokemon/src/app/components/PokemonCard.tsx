@@ -31,7 +31,6 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
       {/* Componente Image otimizado do Next.js: */}
 
       <Image
-        className="h-[130px] w-[130px]"
         src={pokemon.imageUrl} // Fonte da imagem do Pokémon
         alt={pokemon.name} // Texto alternativo (importante para acessibilidade e SEO)
         width={130} // Largura da imagem em pixels
