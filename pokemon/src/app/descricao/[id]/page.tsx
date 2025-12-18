@@ -1,39 +1,30 @@
-// src/app/descricao/[id]/page.tsx - Página de Detalhes do Pokémon
+// ./app/descricao/[id]/page.tsx
+import PokemonDetailClient from '../../components/PokemonDetailClient';
 
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-
-// --- Interfaces de Tipagem ---
-interface IdPageProps {
-  params: {
-    id: string; // ID recebido da URL
-  };
+interface Params {
+  params: { id: string };
 }
 
-interface FullPokemonDetails {
+interface PokemonData {
   id: number;
   name: string;
   height: number;
   weight: number;
   types: { type: { name: string } }[];
-  imageUrl: string;
+  sprites: {
+    front_default: string | null;
+    front_shiny: string | null;
+    animated?: string | null;
+    animated_shiny?: string | null;
+  };
 }
 
-// --- Função para Buscar Detalhes do Pokémon (Server Component) ---
-async function fetchFullPokemonDetails(pokemonId: string): Promise<FullPokemonDetails | null> {
-  const API_URL = `https://pokeapi.co/api/v2/pokemon/${pokemonId}`;
-
-  
-
+async function fetchPokemon(id: string): Promise<PokemonData | null> {
   try {
-    const response = await fetch(API_URL, {
-      next: { revalidate: 86400 }, // 24h de revalidação
-    });
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`, { next: { revalidate: 86400 } });
+    if (!res.ok) return null;
 
-    if (!response.ok) return null;
-
-    const data = await response.json();
+    const data = await res.json();
 
     return {
       id: data.id,
@@ -41,62 +32,24 @@ async function fetchFullPokemonDetails(pokemonId: string): Promise<FullPokemonDe
       height: data.height,
       weight: data.weight,
       types: data.types,
-      imageUrl: data.sprites.front_default || '/placeholder-pokemon.png',
+      sprites: {
+        front_default: data.sprites.front_default,
+        front_shiny: data.sprites.front_shiny,
+        animated: data.sprites.versions['generation-v']['black-white'].animated.front_default,
+        animated_shiny: data.sprites.versions['generation-v']['black-white'].animated.front_shiny,
+      },
     };
   } catch (error) {
-    console.error('Erro ao buscar detalhes:', error);
+    console.error('Erro ao buscar Pokémon:', error);
     return null;
   }
 }
 
-// --- Componente Principal (Página de Detalhes do Pokémon) ---
-export default async function PokemonDetailPage({ params }: IdPageProps) {
-  const pokemonId = params.id;
-  const pokemon = await fetchFullPokemonDetails(pokemonId);
+export default async function PokemonDetailPage({ params }: Params) {
+  const pokemon = await fetchPokemon(params.id);
 
-  if (!pokemon) {
-    return (
-      <div className="flex justify-center mt-16">
-        <h1 className="text-xl text-red-500">
-          Pokémon com ID "{pokemonId}" não encontrado.
-        </h1>
-      </div>
-    );
-  }
+  if (!pokemon)
+    return <p className="text-red-500 text-center mt-10">Pokémon não encontrado.</p>;
 
-  // Formata os tipos do Pokémon (ex.: "Grass / Poison")
-  const tipoString = pokemon.types
-    .map((t) => t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1))
-    .join(' / ');
-
-  return (
-    <div className="flex justify-center mt-16">
-      <div className="border border-gray-200 rounded-2xl bg-black/80 w-[650px] h-[320px] p-10 flex text-white">
-
-        {/* --- INFORMAÇÕES DO POKÉMON --- */}
-        <div className="flex-1 flex flex-col justify-center gap-3 text-left">
-          <h1 className="text-2xl text-gray-300">#{pokemon.id}</h1>
-          <h1 className="font-mono tracking-wide text-4xl">{pokemon.name.toUpperCase()}</h1>
-
-          <div className="font-mono text-base mt-3">
-            <p><strong>Tipo(s):</strong> {tipoString}</p>
-            <p><strong>Altura:</strong> {pokemon.height / 10} m</p>
-            <p><strong>Peso:</strong> {pokemon.weight / 10} kg</p>
-          </div>
-        </div>
-
-        {/* --- IMAGEM DO POKÉMON --- */}
-        <div className="flex items-center justify-end p-4">
-          <Image
-            src={pokemon.imageUrl}
-            alt={`Sprite de ${pokemon.name}`}
-            width={250}
-            height={250}
-            priority
-          />
-        </div>
-
-      </div>
-    </div>
-  );
+  return <PokemonDetailClient pokemon={pokemon} />;
 }
